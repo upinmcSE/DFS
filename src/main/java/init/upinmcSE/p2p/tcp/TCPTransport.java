@@ -1,5 +1,6 @@
 package init.upinmcSE.p2p.tcp;
 
+import init.upinmcSE.p2p.HandshakeFunc;
 import init.upinmcSE.p2p.Transport;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,10 +18,12 @@ import java.util.concurrent.Executors;
 public class TCPTransport implements Transport {
     private int listenAddress;
     private ServerSocket serverSocket;
+    private HandshakeFunc handshakeFunc;
     private ExecutorService executor = Executors.newCachedThreadPool();
 
-    public TCPTransport(int listenAddress) {
+    public TCPTransport(int listenAddress, HandshakeFunc handshakeFunc) {
         this.listenAddress = listenAddress;
+        this.handshakeFunc = handshakeFunc;
     }
 
     @Override
@@ -43,5 +46,10 @@ public class TCPTransport implements Transport {
     private void handleConn(Socket socket, boolean outbound) {
         TCPPeer peer = new TCPPeer(socket, outbound);
         log.info("new incoming connection from {} , {}", peer.getConn(), peer.isOutbound());
+
+        // handshake
+
+        // read and decode
+
     }
 }

@@ -8,7 +8,7 @@ import java.io.IOException;
 @Slf4j
 public class Main {
     public static void main(String[] args) throws IOException {
-        TCPTransport tr = new TCPTransport(3000);
+        TCPTransport tr = new TCPTransport(3000, null);
 
         tr.listenAndAccept();
     }
