@@ -4,6 +4,6 @@ import java.io.IOException;
 
 @FunctionalInterface
 public interface HandshakeFunc {
-    boolean handshake(Peer peer) throws IOException;
+    void handshake(Peer peer) throws IOException;
 }
 

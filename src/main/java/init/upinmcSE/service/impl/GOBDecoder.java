@@ -2,15 +2,22 @@ package init.upinmcSE.service.impl;
 
 import init.upinmcSE.p2p.RPC;
 import init.upinmcSE.service.Decoder;
-import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.net.Socket;
 
-@Service
 public class GOBDecoder implements Decoder {
     @Override
-    public RPC decode(Socket socket) throws IOException {
-        return null;
+    public RPC decode(Socket socket) throws Exception {
+        InputStream input = socket.getInputStream();
+
+        ObjectInputStream ois = new ObjectInputStream(input);
+        Object obj = ois.readObject();
+        if (obj instanceof RPC) {
+            return (RPC) obj;
+        } else {
+            throw new IllegalStateException("Expected RPC object");
+        }
     }
 }
