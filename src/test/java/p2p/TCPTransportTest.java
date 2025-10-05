@@ -17,7 +17,7 @@ public class TCPTransportTest {
 
     @BeforeEach
     void setUp() {
-        transport = new TCPTransport(3333);
+        transport = new TCPTransport(3333, null);
     }
 
     @AfterEach

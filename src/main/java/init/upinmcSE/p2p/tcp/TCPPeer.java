@@ -1,5 +1,6 @@
 package init.upinmcSE.p2p.tcp;
 
+import init.upinmcSE.p2p.Peer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,7 @@ import java.net.Socket;
  * */
 @Getter
 @Setter
-public class TCPPeer {
+public class TCPPeer implements Peer {
 
     /**
      * conn is the underlying connection of the peer
