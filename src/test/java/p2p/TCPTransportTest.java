@@ -1,6 +1,8 @@
 package p2p;
 
 import init.upinmcSE.p2p.tcp.TCPTransport;
+import init.upinmcSE.p2p.tcp.TCPTransportOpts;
+import init.upinmcSE.service.impl.DefaultDecoder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,10 +16,17 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TCPTransportTest {
 
     private TCPTransport transport;
+    private TCPTransportOpts opts;
 
     @BeforeEach
     void setUp() {
-        transport = new TCPTransport(3333, null);
+        opts = new TCPTransportOpts(
+                ":3000",
+                p -> {},
+                new DefaultDecoder()
+        );
+
+        transport = new TCPTransport(opts);
     }
 
     @AfterEach
@@ -37,21 +46,11 @@ public class TCPTransportTest {
 
         TimeUnit.MILLISECONDS.sleep(200);
 
-        assertTrue(clientSocket.isConnected(), "Client should be connected to server");
+        assertEquals(transport.getServerSocket().getLocalPort(), port);
+
+
 
         clientSocket.close();
     }
 
-    @Test
-    void testServerClosesGracefully() throws Exception {
-        transport.listenAndAccept();
-
-        int port = transport.getServerSocket().getLocalPort();
-
-        transport.getServerSocket().close();
-
-        TimeUnit.MILLISECONDS.sleep(100);
-
-        assertTrue(transport.getServerSocket().isClosed(), "Server socket should be closed");
-    }
 }

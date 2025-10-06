@@ -4,6 +4,7 @@ import init.upinmcSE.p2p.Peer;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.IOException;
 import java.net.Socket;
 
 /**
@@ -12,7 +13,6 @@ import java.net.Socket;
 @Getter
 @Setter
 public class TCPPeer implements Peer {
-
     /**
      * conn is the underlying connection of the peer
      * */
@@ -27,5 +27,10 @@ public class TCPPeer implements Peer {
     public TCPPeer(Socket conn, boolean outbound) {
         this.conn = conn;
         this.outbound = outbound;
+    }
+
+    @Override
+    public void close() throws IOException {
+        conn.close();
     }
 }

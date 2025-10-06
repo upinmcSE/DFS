@@ -1,5 +1,7 @@
 package init.upinmcSE;
 
+import init.upinmcSE.p2p.OnPeerHandler;
+import init.upinmcSE.p2p.Peer;
 import init.upinmcSE.p2p.tcp.TCPTransport;
 import init.upinmcSE.p2p.tcp.TCPTransportOpts;
 import init.upinmcSE.service.impl.GOBDecoder;
@@ -13,10 +15,12 @@ public class Main {
         TCPTransportOpts tcpOpts = new TCPTransportOpts(
                 ":3000",
                 h -> {}, // NOP
-                new GOBDecoder());
+                new GOBDecoder(),
+                p -> System.out.println("doing some logic with the peer outside of TCPTransport")
+                );
 
-        TCPTransport tr = new TCPTransport(tcpOpts);
-
-        tr.listenAndAccept();
+        try(TCPTransport tr = new TCPTransport(tcpOpts)){
+            tr.listenAndAccept();
+        }
     }
 }

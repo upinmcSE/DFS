@@ -18,6 +18,14 @@ public class RPC implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String from;
-    private String payload;
+    private byte[] payload;
     private boolean stream;
+
+    public RPC(){}
+
+    public RPC(String from, byte[] payload, boolean stream) {
+        this.from = from;
+        this.payload = payload;
+        this.stream = stream;
+    }
 }
