@@ -1,4 +1,6 @@
 package init.upinmcSE.p2p;
 
-public interface Peer {
+import java.io.Closeable;
+
+public interface Peer extends Closeable {
 }

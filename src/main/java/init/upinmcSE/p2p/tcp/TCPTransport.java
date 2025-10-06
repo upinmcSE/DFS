@@ -1,5 +1,6 @@
 package init.upinmcSE.p2p.tcp;
 
+import init.upinmcSE.p2p.Peer;
 import init.upinmcSE.p2p.RPC;
 import init.upinmcSE.p2p.Transport;
 import lombok.Getter;
@@ -11,8 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * TCPTransport implements Transport interface using ServerSocket/Socket.
@@ -25,7 +25,9 @@ import java.util.concurrent.Executors;
 public class TCPTransport implements Transport {
     private TCPTransportOpts opts;
     private ServerSocket serverSocket;
+    private BlockingQueue<RPC> rpcQueue = new LinkedBlockingQueue<>(1024);
     private ExecutorService executor = Executors.newCachedThreadPool();
+    private ConcurrentMap<String, Peer> peers = new ConcurrentHashMap<>();
 
     public TCPTransport(TCPTransportOpts opts) {
         this.opts = opts;
@@ -57,6 +59,15 @@ public class TCPTransport implements Transport {
         }
     }
 
+    /**
+     * Consume implements the Transport interface, which will return read-only channel
+     * for reading the incoming messages received from another peer in the network.
+     */
+    @Override
+    public BlockingQueue<RPC> consume() {
+        return this.rpcQueue;
+    }
+
     private void handleConn(Socket socket, boolean outbound) {
         try{
             TCPPeer peer = new TCPPeer(socket, outbound);
@@ -67,20 +78,35 @@ public class TCPTransport implements Transport {
                 this.opts.getHandshakeFunc().handshake(peer);
             }
 
+            if (opts.getOnPeer() != null) {
+                opts.getOnPeer().handle(peer);
+            }
+
+            peers.put(socket.getRemoteSocketAddress().toString(), peer);
+
             // read and decode
             while (!socket.isClosed()) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                String message;
-                while ((message = reader.readLine()) != null) {
-                    log.info("Received message {}", message);
-                }
+                RPC rpc = this.opts.getDecoder().decode(socket);
+                rpc.setFrom(socket.getRemoteSocketAddress().toString());
+                log.info("message: {} {} {}", rpc.getFrom(), rpc.getPayload(), rpc.isStream());
+
+                // push into queue (blocks if full)
+                rpcQueue.put(rpc);
             }
         }catch(Exception e){
             log.error("dropping peer connection: {}", e.getMessage());
         } finally {
             try { socket.close(); } catch (Exception ignored) {}
         }
+    }
 
+    @Override
+    public void close() throws IOException {
+        if (serverSocket != null) {
+            serverSocket.close();
+        }
+        executor.shutdownNow();
     }
 }
