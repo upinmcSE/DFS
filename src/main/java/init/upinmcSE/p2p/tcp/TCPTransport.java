@@ -92,6 +92,15 @@ public class TCPTransport implements Transport {
                 rpc.setFrom(socket.getRemoteSocketAddress().toString());
                 log.info("message: {} {} {}", rpc.getFrom(), rpc.getPayload(), rpc.isStream());
 
+//                if (rpc.isStream()) {
+//                    // stream: wait until client signals end
+//                    // In this simplified impl we just continue; higher-level FileServer reads raw bytes directly from Socket.
+//                    // Sleep briefly to simulate wait (real impl should coordinate)
+//                    System.out.printf("[%s] incoming stream, waiting...%n", socket.getRemoteSocketAddress());
+//                    // naive wait, in real system better sync — here we just continue read loop
+//                    continue;
+//                }
+
                 // push into queue (blocks if full)
                 rpcQueue.put(rpc);
             }
